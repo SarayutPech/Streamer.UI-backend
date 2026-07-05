@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+streamerui:
+  data-dir: ./data
+  uploads-dir: ./uploads
+  # This app is meant to run locally for one streamer (backend + overlay + admin
+  # all on your own machine), so CORS is left wide open for convenience. If you
+  # ever expose it beyond localhost, tighten this to your actual origins.
+  cors:
+    allowed-origins:
+      - "*"
+  youtube:
+    # Floor on how often we poll YouTube's internal chat endpoint, even if it
+    # tells us we could poll faster. No API key/quota involved with the
+    # unofficial popout-chat approach, but this still avoids hammering it.
+    min-poll-interval-ms: 2000
+
+logging:
+  level:
+    com.streamerui: INFO

@@ -1,0 +1,15 @@
+{
+  "headerEnabled" : true,
+  "headerText" : "Test Steam Chat 1",
+  "headerLogoUrl" : "/uploads/84df314c-c51f-4197-93fd-f4649bc96123.png",
+  "headerBannerUrl" : "/uploads/42c88bfc-4515-4a55-af79-5cecac1c624d.jpg",
+  "backgroundType" : "transparent",
+  "backgroundValue" : "#0f0f13cc",
+  "badgeSlotCount" : 4,
+  "defaultGlowEnabled" : true,
+  "defaultNameColor" : "#ff0000",
+  "fontFamily" : "'Inter', 'Noto Sans Thai', sans-serif",
+  "maxMessages" : 20,
+  "bannerDisplaySeconds" : 6,
+  "userBannersEnabled" : true
+}
