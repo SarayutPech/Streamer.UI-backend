@@ -45,9 +45,14 @@ CREATE TABLE streamers (
     display_name  VARCHAR(256)      NOT NULL,
     primary_email VARCHAR(320)      NULL,
     avatar_url    VARCHAR(1024)     NULL,
+    -- Plain username/password login (in addition to/instead of OAuth - see
+    -- LocalAuthController). Null for accounts created purely via OAuth.
+    username      VARCHAR(64)       NULL,
+    password_hash VARCHAR(255)      NULL,
     status        ENUM('active','disabled') NOT NULL DEFAULT 'active',
     created_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at    DATETIME          NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_streamers_username (username)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------------------
