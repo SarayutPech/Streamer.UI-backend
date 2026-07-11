@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamerui.config.StreamerUiProperties;
 import com.streamerui.model.Badge;
 import com.streamerui.repository.BadgeLibraryRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.nio.file.Path;
@@ -13,9 +14,12 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * BadgeLibraryRepository backed by data/badges.json.
+ * BadgeLibraryRepository backed by data/badges.json. Local/single-tenant dev
+ * mode - streamerId is accepted but ignored. Active by default; steps aside
+ * when the "mysql" profile is on.
  */
 @Repository
+@Profile("!mysql")
 public class JsonBadgeLibraryRepository implements BadgeLibraryRepository {
 
     private final JsonFileStore store;
@@ -51,7 +55,7 @@ public class JsonBadgeLibraryRepository implements BadgeLibraryRepository {
     }
 
     @Override
-    public synchronized List<Badge> findAll() {
+    public synchronized List<Badge> findAll(Long streamerId) {
         List<Badge> all = new ArrayList<>();
         for (String id : order) {
             Badge b = cache.get(id);
@@ -63,12 +67,12 @@ public class JsonBadgeLibraryRepository implements BadgeLibraryRepository {
     }
 
     @Override
-    public synchronized Optional<Badge> findById(String id) {
+    public synchronized Optional<Badge> findById(Long streamerId, String id) {
         return Optional.ofNullable(cache.get(id));
     }
 
     @Override
-    public synchronized Badge save(Badge badge) {
+    public synchronized Badge save(Long streamerId, Badge badge) {
         if (!cache.containsKey(badge.getId())) {
             order.add(badge.getId());
         }
@@ -78,7 +82,7 @@ public class JsonBadgeLibraryRepository implements BadgeLibraryRepository {
     }
 
     @Override
-    public synchronized void deleteById(String id) {
+    public synchronized void deleteById(Long streamerId, String id) {
         cache.remove(id);
         order.remove(id);
         persist();

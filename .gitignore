@@ -6,3 +6,6 @@ target/
 .vscode/
 uploads/*
 !uploads/.gitkeep
+
+# Holds real DB/OAuth/JWT secrets once filled in for local testing.
+src/main/resources/application-local.properties

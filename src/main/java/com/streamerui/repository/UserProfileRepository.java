@@ -6,29 +6,28 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Storage-agnostic contract for per-user chat appearance settings.
- * Today this is backed by a JSON file (see json.JsonUserProfileRepository).
- * To move to a real database, implement this interface against your DB of
- * choice (e.g. JPA/Postgres) and swap the @Repository bean - no other
- * class in the app needs to change.
+ * Storage-agnostic contract for per-user chat appearance settings, scoped to
+ * one streamer (owner) at a time. Backed by a JSON file locally (see
+ * json.JsonUserProfileRepository - which ignores streamerId, single-tenant
+ * local dev only) or by MySQL in production (see jpa.JpaUserProfileRepository).
  */
 public interface UserProfileRepository {
 
-    List<UserProfile> findAll();
+    List<UserProfile> findAll(Long streamerId);
 
-    Optional<UserProfile> findByChannelId(String channelId);
+    Optional<UserProfile> findByChannelId(Long streamerId, String channelId);
 
-    UserProfile save(UserProfile profile);
+    UserProfile save(Long streamerId, UserProfile profile);
 
-    void deleteByChannelId(String channelId);
+    void deleteByChannelId(Long streamerId, String channelId);
 
-    /** Wipes every saved profile (e.g. an admin "clear all users" action). */
-    void deleteAll();
+    /** Wipes every saved profile for this streamer (e.g. an admin "clear all users" action). */
+    void deleteAll(Long streamerId);
 
     /**
-     * Returns the existing profile for the channelId, or creates and persists
-     * a fresh default one if none exists yet (used when a brand new chatter
-     * shows up in the live chat feed).
+     * Returns the existing profile for the channelId under this streamer, or
+     * creates and persists a fresh default one if none exists yet (used when
+     * a brand new chatter shows up in the live chat feed).
      */
-    UserProfile findOrCreate(String channelId, String displayName);
+    UserProfile findOrCreate(Long streamerId, String channelId, String displayName);
 }

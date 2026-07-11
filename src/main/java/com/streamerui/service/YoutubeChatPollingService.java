@@ -15,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -23,11 +25,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * Owns the connection to one YouTube live chat at a time. No API key needed:
+ * Owns one YouTube live chat connection per streamer (keyed by streamerId -
+ * each streamer can have at most one active connection at a time, but
+ * multiple streamers can be connected simultaneously). No API key needed:
  * this reads the same internal endpoint the live chat popout page itself
  * uses (see YoutubeApiClient for details/caveats). Each new message is
  * enriched with the author's saved UserProfile (badges/name color/glow/
- * banner) and broadcast to the frontend over WebSocket.
+ * banner) for that streamer and broadcast to that streamer's overlay over
+ * WebSocket.
  *
  * Also doubles as the home for "send a preview message" (see
  * sendPreviewMessage) so the admin can test badge/glow/banner/event styling
@@ -45,14 +50,14 @@ public class YoutubeChatPollingService {
     private final ChatBroadcastService broadcastService;
     private final long minPollIntervalMs;
 
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor(r -> {
+    private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(2, r -> {
         Thread t = new Thread(r, "youtube-chat-poller");
         t.setDaemon(true);
         return t;
     });
 
-    private volatile PollState state = new PollState();
-    private volatile ScheduledFuture<?> scheduledFuture;
+    /** One poll state per streamer that has connected at least once. */
+    private final Map<Long, PollState> statesByStreamer = new ConcurrentHashMap<>();
 
     public YoutubeChatPollingService(YoutubeApiClient client,
                                       UserProfileRepository userProfileRepository,
@@ -66,8 +71,8 @@ public class YoutubeChatPollingService {
         this.minPollIntervalMs = properties.getYoutube().getMinPollIntervalMs();
     }
 
-    public synchronized YoutubeStatus connect(String videoUrlOrId) {
-        stopInternal();
+    public synchronized YoutubeStatus connect(Long streamerId, String videoUrlOrId) {
+        stopInternal(streamerId);
 
         String videoId = VideoIdExtractor.extract(videoUrlOrId);
         YoutubeApiClient.Session session = client.openSession(videoId);
@@ -76,28 +81,28 @@ public class YoutubeChatPollingService {
         newState.videoId = videoId;
         newState.session = session;
         newState.connected = true;
-        this.state = newState;
+        statesByStreamer.put(streamerId, newState);
 
-        schedulePoll(0);
-        log.info("Connected to YouTube live chat (unofficial popout endpoint). videoId={}", videoId);
-        return status();
+        schedulePoll(streamerId, 0);
+        log.info("Connected to YouTube live chat (unofficial popout endpoint). streamerId={} videoId={}", streamerId, videoId);
+        return status(streamerId);
     }
 
-    public synchronized void disconnect() {
-        stopInternal();
-        log.info("Disconnected from YouTube live chat.");
+    public synchronized void disconnect(Long streamerId) {
+        stopInternal(streamerId);
+        log.info("Disconnected from YouTube live chat. streamerId={}", streamerId);
     }
 
-    private void stopInternal() {
-        if (scheduledFuture != null) {
-            scheduledFuture.cancel(true);
-            scheduledFuture = null;
+    private void stopInternal(Long streamerId) {
+        PollState existing = statesByStreamer.get(streamerId);
+        if (existing != null && existing.scheduledFuture != null) {
+            existing.scheduledFuture.cancel(true);
         }
-        this.state = new PollState();
+        statesByStreamer.put(streamerId, new PollState());
     }
 
-    public synchronized YoutubeStatus status() {
-        PollState s = this.state;
+    public synchronized YoutubeStatus status(Long streamerId) {
+        PollState s = statesByStreamer.getOrDefault(streamerId, new PollState());
         YoutubeStatus dto = new YoutubeStatus();
         dto.setConnected(s.connected);
         dto.setVideoId(s.videoId);
@@ -110,24 +115,29 @@ public class YoutubeChatPollingService {
     /**
      * Builds a synthetic chat message through the same enrichment pipeline as
      * a real one (profile lookup, badge capping, name color/glow/banner) and
-     * broadcasts it immediately. Used by the admin's "send preview message"
-     * feature - no live YouTube connection required.
+     * broadcasts it immediately to this streamer's overlay. Used by the
+     * admin's "send preview message" feature - no live YouTube connection
+     * required.
      */
-    public ChatMessageDto sendPreviewMessage(String channelId, String displayName, String type,
+    public ChatMessageDto sendPreviewMessage(Long streamerId, String channelId, String displayName, String type,
                                               String messageText, String amountDisplayString) {
         String id = "preview-" + UUID.randomUUID();
         String safeType = (type == null || type.isBlank()) ? "textMessageEvent" : type;
-        ChatMessageDto dto = buildDto(id, safeType, null, channelId, displayName, null, messageText, amountDisplayString);
-        broadcastService.broadcastMessage(dto);
+        ChatMessageDto dto = buildDto(streamerId, id, safeType, null, channelId, displayName, null, messageText, amountDisplayString);
+        broadcastService.broadcastMessage(streamerId, dto);
         return dto;
     }
 
-    private void schedulePoll(long delayMs) {
-        scheduledFuture = executor.schedule(this::pollOnce, delayMs, TimeUnit.MILLISECONDS);
+    private void schedulePoll(Long streamerId, long delayMs) {
+        PollState s = statesByStreamer.get(streamerId);
+        if (s == null) {
+            return;
+        }
+        s.scheduledFuture = executor.schedule(() -> pollOnce(streamerId), delayMs, TimeUnit.MILLISECONDS);
     }
 
-    private void pollOnce() {
-        PollState s = this.state;
+    private void pollOnce(Long streamerId) {
+        PollState s = statesByStreamer.get(streamerId);
         if (s == null || !s.connected) {
             return;
         }
@@ -136,9 +146,9 @@ public class YoutubeChatPollingService {
             YoutubeApiClient.PollResult result = client.fetchNext(s.session);
             for (JsonNode item : result.items) {
                 try {
-                    ChatMessageDto dto = mapToDto(item);
+                    ChatMessageDto dto = mapToDto(streamerId, item);
                     if (dto != null) {
-                        broadcastService.broadcastMessage(dto);
+                        broadcastService.broadcastMessage(streamerId, dto);
                     }
                 } catch (Exception itemError) {
                     log.warn("Skipping malformed chat item: {}", itemError.getMessage());
@@ -149,16 +159,16 @@ public class YoutubeChatPollingService {
             s.lastPolledAtEpochMs = System.currentTimeMillis();
             nextDelay = Math.max(result.pollingIntervalMillis, minPollIntervalMs);
         } catch (Exception e) {
-            log.warn("YouTube poll failed: {}", e.getMessage());
+            log.warn("YouTube poll failed for streamerId={}: {}", streamerId, e.getMessage());
             s.lastError = e.getMessage();
         }
 
         if (s.connected) {
-            schedulePoll(nextDelay);
+            schedulePoll(streamerId, nextDelay);
         }
     }
 
-    private ChatMessageDto mapToDto(JsonNode item) {
+    private ChatMessageDto mapToDto(Long streamerId, JsonNode item) {
         // The renderer type name changes depending on the kind of chat item.
         JsonNode renderer = firstPresent(item,
                 "liveChatTextMessageRenderer",
@@ -181,20 +191,20 @@ public class YoutubeChatPollingService {
         String publishedAt = renderer.path("timestampUsec").asText(null);
         String id = renderer.path("id").asText(null);
 
-        return buildDto(id, type, publishedAt, channelId, displayName, profileImageUrl, messageText, amountDisplayString);
+        return buildDto(streamerId, id, type, publishedAt, channelId, displayName, profileImageUrl, messageText, amountDisplayString);
     }
 
     /**
      * Shared enrichment step: looks up (or creates) the author's saved
-     * UserProfile and the current OverlayConfig, then merges everything into
-     * a ChatMessageDto ready to broadcast. Used for both real YouTube
-     * messages and preview/test messages.
+     * UserProfile and the current OverlayConfig for this streamer, then
+     * merges everything into a ChatMessageDto ready to broadcast. Used for
+     * both real YouTube messages and preview/test messages.
      */
-    private ChatMessageDto buildDto(String id, String type, String publishedAt, String channelId,
+    private ChatMessageDto buildDto(Long streamerId, String id, String type, String publishedAt, String channelId,
                                      String displayName, String profileImageUrl, String messageText,
                                      String amountDisplayString) {
-        UserProfile profile = userProfileRepository.findOrCreate(channelId, displayName);
-        OverlayConfig config = overlayConfigRepository.get();
+        UserProfile profile = userProfileRepository.findOrCreate(streamerId, channelId, displayName);
+        OverlayConfig config = overlayConfigRepository.get(streamerId);
 
         ChatMessageDto dto = new ChatMessageDto();
         dto.setId(id);
@@ -278,7 +288,9 @@ public class YoutubeChatPollingService {
 
     @PreDestroy
     public void shutdown() {
-        stopInternal();
+        for (Long streamerId : statesByStreamer.keySet()) {
+            stopInternal(streamerId);
+        }
         executor.shutdownNow();
     }
 
@@ -288,5 +300,6 @@ public class YoutubeChatPollingService {
         volatile boolean connected = false;
         volatile String lastError;
         volatile long lastPolledAtEpochMs;
+        volatile ScheduledFuture<?> scheduledFuture;
     }
 }

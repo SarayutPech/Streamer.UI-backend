@@ -3,13 +3,14 @@ package com.streamerui.repository;
 import com.streamerui.model.OverlayConfig;
 
 /**
- * Storage-agnostic contract for the single global OverlayConfig record.
- * Backed by a JSON file today (see json.JsonOverlayConfigRepository);
- * swap to a DB-backed implementation later without touching callers.
+ * Storage-agnostic contract for one streamer's OverlayConfig record.
+ * Backed by a JSON file locally (single-tenant, ignores streamerId - see
+ * json.JsonOverlayConfigRepository) or by MySQL in production, one row per
+ * streamer (see jpa.JpaOverlayConfigRepository).
  */
 public interface OverlayConfigRepository {
 
-    OverlayConfig get();
+    OverlayConfig get(Long streamerId);
 
-    OverlayConfig save(OverlayConfig config);
+    OverlayConfig save(Long streamerId, OverlayConfig config);
 }

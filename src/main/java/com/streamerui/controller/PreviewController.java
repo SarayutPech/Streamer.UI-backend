@@ -2,6 +2,7 @@ package com.streamerui.controller;
 
 import com.streamerui.model.ChatMessageDto;
 import com.streamerui.model.PreviewRequest;
+import com.streamerui.security.CurrentStreamerService;
 import com.streamerui.service.YoutubeChatPollingService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Lets the admin UI send a fake chat message straight to the overlay, for
- * testing badge/glow/banner/event styling without waiting on a real live
+ * Lets the admin UI send a fake chat message straight to their own overlay,
+ * for testing badge/glow/banner/event styling without waiting on a real live
  * chat. Goes through the same profile-enrichment code as real messages.
  */
 @RestController
@@ -18,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class PreviewController {
 
     private final YoutubeChatPollingService pollingService;
+    private final CurrentStreamerService currentStreamer;
 
-    public PreviewController(YoutubeChatPollingService pollingService) {
+    public PreviewController(YoutubeChatPollingService pollingService, CurrentStreamerService currentStreamer) {
         this.pollingService = pollingService;
+        this.currentStreamer = currentStreamer;
     }
 
     @PostMapping
@@ -41,7 +44,8 @@ public class PreviewController {
         if (amount == null && ("superChatEvent".equals(request.getType()) || "superStickerEvent".equals(request.getType()))) {
             amount = "$5.00";
         }
-        return pollingService.sendPreviewMessage(channelId, displayName, request.getType(), messageText, amount);
+        return pollingService.sendPreviewMessage(currentStreamer.requireStreamerId(), channelId, displayName,
+                request.getType(), messageText, amount);
     }
 
     private String defaultMessageFor(String type) {

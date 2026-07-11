@@ -6,6 +6,16 @@ spring:
     multipart:
       max-file-size: 5MB
       max-request-size: 5MB
+  # Local/default profile has no database configured (still uses the
+  # JSON-file repositories), so skip DataSource/JPA autoconfiguration
+  # entirely here - otherwise Spring Boot fails to boot looking for a
+  # DataSource that doesn't exist. application-prod.yml re-enables these
+  # (empty exclude list) once the "mysql" profile brings real DB config.
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration
 
 streamerui:
   data-dir: ./data

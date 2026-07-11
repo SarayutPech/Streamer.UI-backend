@@ -1,0 +1,26 @@
+# Render "Blueprint" spec - lets you deploy this service via Render's
+# "New +" -> "Blueprint" flow instead of clicking through the manual web
+# service form. Fill in the DB_* and CORS_ALLOWED_ORIGIN values in the Render
+# dashboard after the first deploy (marked sync: false so Render prompts for
+# them instead of storing secrets in this file).
+services:
+  - type: web
+    name: streamer-ui-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod,mysql
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: CORS_ALLOWED_ORIGIN
+        sync: false

@@ -1,0 +1,95 @@
+# Activated with SPRING_PROFILES_ACTIVE=prod,mysql (Render env var). Local
+# runs are untouched - they keep using application.yml + the JSON-file
+# repositories.
+server:
+  # Render injects the port to bind to via $PORT; 8080 is just a local fallback.
+  port: ${PORT:8080}
+
+spring:
+  # Re-enable the DataSource/JPA autoconfiguration that application.yml
+  # switches off by default (empty list overrides the base file's list).
+  autoconfigure:
+    exclude: []
+  datasource:
+    # Build this from the Aiven MySQL service overview page: Host, Port,
+    # Database name. Aiven requires TLS, hence useSSL/requireSSL below.
+    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}?useSSL=true&requireSSL=true&serverTimezone=UTC
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      # The schema is created by hand (schema/streamerui_multi_tenant.sql -
+      # it has generated columns, CHECK constraints and ENUMs Hibernate
+      # doesn't fully understand), so don't let Hibernate try to alter it.
+      # "validate" just checks the entities match what's already there;
+      # run the SQL script BEFORE the app boots against a fresh database.
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          # Register a Google Cloud OAuth client (console.cloud.google.com ->
+          # APIs & Services -> Credentials -> OAuth client ID -> Web
+          # application), authorized redirect URI:
+          # https://<your-render-backend>/login/oauth2/code/google
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope: profile,email
+          # Facebook Developer app (developers.facebook.com), Facebook Login
+          # product, valid OAuth redirect URI:
+          # https://<your-render-backend>/login/oauth2/code/facebook
+          facebook:
+            client-id: ${FACEBOOK_CLIENT_ID}
+            client-secret: ${FACEBOOK_CLIENT_SECRET}
+            scope: email,public_profile
+          # "Login with YouTube" reuses the same Google OAuth client as
+          # above by default (just a different scope, so it can also read
+          # the caller's YouTube channel id) - set YOUTUBE_CLIENT_ID/SECRET
+          # separately only if you want a distinct OAuth client for it.
+          # Redirect URI to register with Google for this one:
+          # https://<your-render-backend>/login/oauth2/code/youtube
+          youtube:
+            client-id: ${YOUTUBE_CLIENT_ID:${GOOGLE_CLIENT_ID}}
+            client-secret: ${YOUTUBE_CLIENT_SECRET:${GOOGLE_CLIENT_SECRET}}
+            scope: profile,email,https://www.googleapis.com/auth/youtube.readonly
+            provider: youtube
+        provider:
+          # "youtube" isn't a Spring-recognized provider id (unlike google/
+          # facebook), so its endpoints have to be spelled out - they're the
+          # same endpoints Google's own registration uses under the hood.
+          youtube:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://www.googleapis.com/oauth2/v4/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
+
+streamerui:
+  # Render's free-tier disk is ephemeral (wiped on every redeploy/restart),
+  # so uploaded badge/banner images won't survive a redeploy unless you later
+  # move uploads to external object storage. Not fixed here - out of scope
+  # for the CORS/hosting change, just flagging it.
+  uploads-dir: ${UPLOADS_DIR:./uploads}
+  # Where OAuthLoginSuccessHandler redirects the browser after login, with
+  # the JWT in the URL fragment - your Cloudflare Pages URL.
+  frontend-url: ${FRONTEND_URL:https://your-app.pages.dev}
+  jwt:
+    # MUST be set to a long random value in production - anyone with this
+    # secret can mint tokens for any streamer id. Generate one with e.g.
+    # `openssl rand -base64 48`.
+    secret: ${JWT_SECRET}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:43200}
+  cors:
+    # Set this on Render to your actual Cloudflare Pages URL, e.g.
+    # https://streamer-ui.pages.dev (or your custom domain). No trailing slash.
+    allowed-origins:
+      - ${CORS_ALLOWED_ORIGIN:https://your-app.pages.dev}
+
+logging:
+  level:
+    com.streamerui: INFO

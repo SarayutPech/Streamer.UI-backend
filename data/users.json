@@ -1,17 +1,6 @@
 [ {
-  "channelId" : "UCf4YQdgHjXfQ1D2tLTqR00g",
-  "displayName" : "@shipdont",
-  "badges" : [ ],
-  "nameColor" : "#000000",
-  "glowEnabled" : true,
-  "glowColor" : "#ffffff",
-  "glowSize" : 10,
-  "bannerImageUrl" : "/uploads/d38e2a9a-0021-4062-963b-bd50a3d68b84.jpg",
-  "bannerEnabled" : true,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCSfF4IRu4ICtaHDekVe2C-Q",
-  "displayName" : "@verasutbomrungsung530",
+  "channelId" : "UC778niG1CM8zvVMaHEM740Q",
+  "displayName" : "@peemIIIIIIII",
   "badges" : [ ],
   "nameColor" : "#FFFFFF",
   "glowEnabled" : false,
@@ -21,8 +10,8 @@
   "bannerEnabled" : false,
   "bannerMessage" : null
 }, {
-  "channelId" : "UCuji_4CdrG9_6PjViftDpTg",
-  "displayName" : "@attapoomkumja7657",
+  "channelId" : "UCwQoK1Gxjr8SYFmFlg0uX4A",
+  "displayName" : "@ซอยตึ๋ง",
   "badges" : [ ],
   "nameColor" : "#FFFFFF",
   "glowEnabled" : false,
@@ -32,8 +21,8 @@
   "bannerEnabled" : false,
   "bannerMessage" : null
 }, {
-  "channelId" : "PREVIEW_Tester",
-  "displayName" : "PreviewUser",
+  "channelId" : "UC5gpexejcq0D6ShtDV-62Kg",
+  "displayName" : "@ZuxDxYeah",
   "badges" : [ ],
   "nameColor" : "#FFFFFF",
   "glowEnabled" : false,
@@ -43,165 +32,8 @@
   "bannerEnabled" : false,
   "bannerMessage" : null
 }, {
-  "channelId" : "UCM246zZ4qNNmFQ2WHnP_CRA",
-  "displayName" : "@Theghostradio",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCunwJL4e3WxicexJMnRq3Fg",
-  "displayName" : "@King22-k4h",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCdXKbuiIJqH8FFTH8YZN3kw",
-  "displayName" : "@sshippyy",
-  "badges" : [ {
-    "id" : "072fef5d-b11f-4785-95c4-9edce658d658",
-    "label" : "Masupeso",
-    "imageUrl" : "/uploads/f39516c9-6d75-4cd8-a5bc-ce199f418b61.png"
-  }, {
-    "id" : "072fef5d-b11f-4785-95c4-9edce658d658",
-    "label" : "Masupeso",
-    "imageUrl" : "/uploads/f39516c9-6d75-4cd8-a5bc-ce199f418b61.png"
-  }, {
-    "id" : "072fef5d-b11f-4785-95c4-9edce658d658",
-    "label" : "Masupeso",
-    "imageUrl" : "/uploads/f39516c9-6d75-4cd8-a5bc-ce199f418b61.png"
-  }, {
-    "id" : "072fef5d-b11f-4785-95c4-9edce658d658",
-    "label" : "Masupeso",
-    "imageUrl" : "/uploads/f39516c9-6d75-4cd8-a5bc-ce199f418b61.png"
-  } ],
-  "nameColor" : "#ff00c8",
-  "glowEnabled" : true,
-  "glowColor" : "#00ff2a",
-  "glowSize" : 10,
-  "bannerImageUrl" : "/uploads/3853ee5f-b776-4be7-816b-9a0bf4a2ab70.jpg",
-  "bannerEnabled" : true,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UChNOSkUrc64VpthKkSdfkrA",
-  "displayName" : "@butterTheghost",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCV7CGDp-ROsAFPupm2dnsKw",
-  "displayName" : "@น้ําแข็งใสน๊ะจ๊ะ",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCl6lFdPk9XAyARRfVxPQtyQ",
-  "displayName" : "@ກິ່ງໂສມເມືອງ",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCMyqJvmMeY7knkmqg970Dzw",
-  "displayName" : "@norawitsomchit4545",
-  "badges" : [ {
-    "id" : "3e18f5c8-c2d4-40d5-8227-dc4f3d75d9d8",
-    "label" : "masupeso",
-    "imageUrl" : "/uploads/e5f8d993-bf86-464e-a151-2db205f8f8c9.png"
-  }, {
-    "id" : "3e18f5c8-c2d4-40d5-8227-dc4f3d75d9d8",
-    "label" : "masupeso",
-    "imageUrl" : "/uploads/e5f8d993-bf86-464e-a151-2db205f8f8c9.png"
-  }, {
-    "id" : "3e18f5c8-c2d4-40d5-8227-dc4f3d75d9d8",
-    "label" : "masupeso",
-    "imageUrl" : "/uploads/e5f8d993-bf86-464e-a151-2db205f8f8c9.png"
-  }, {
-    "id" : "3e18f5c8-c2d4-40d5-8227-dc4f3d75d9d8",
-    "label" : "masupeso",
-    "imageUrl" : "/uploads/e5f8d993-bf86-464e-a151-2db205f8f8c9.png"
-  } ],
-  "nameColor" : "#000000",
-  "glowEnabled" : true,
-  "glowColor" : "#ffffff",
-  "glowSize" : 5,
-  "bannerImageUrl" : "/uploads/3853ee5f-b776-4be7-816b-9a0bf4a2ab70.jpg",
-  "bannerEnabled" : true,
-  "bannerMessage" : ""
-}, {
-  "channelId" : "UCR2gcwOFfKKrxz8Ag1XhK0g",
-  "displayName" : "@Itang-r5d",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "lopechol",
-  "displayName" : "pechol",
-  "badges" : [ {
-    "id" : "3e18f5c8-c2d4-40d5-8227-dc4f3d75d9d8",
-    "label" : "masupeso",
-    "imageUrl" : "/uploads/e5f8d993-bf86-464e-a151-2db205f8f8c9.png"
-  } ],
-  "nameColor" : "#ffffff",
-  "glowEnabled" : false,
-  "glowColor" : "#ffffff",
-  "glowSize" : 6,
-  "bannerImageUrl" : "/uploads/95b07675-ca62-47bd-9920-1ab18b60fbe4.jpg",
-  "bannerEnabled" : true,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCmlO_XwtdB3jyWcnYmQ_HcA",
-  "displayName" : "@สิรภพสายทอง-จ8ญ",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UCSjDabdeu3LRctJLzC6o5Zg",
-  "displayName" : "@OkOkวาบิซาบิ",
-  "badges" : [ ],
-  "nameColor" : "#FFFFFF",
-  "glowEnabled" : false,
-  "glowColor" : "#7B61FF",
-  "glowSize" : 10,
-  "bannerImageUrl" : null,
-  "bannerEnabled" : false,
-  "bannerMessage" : null
-}, {
-  "channelId" : "UC3XN5iBGHV5RnaMwKfw5F3A",
-  "displayName" : "@AiChamp-888",
+  "channelId" : "UCVpxj6FivHvGrgMP2mDHefA",
+  "displayName" : "@gorawidaksorndid4459",
   "badges" : [ ],
   "nameColor" : "#FFFFFF",
   "glowEnabled" : false,

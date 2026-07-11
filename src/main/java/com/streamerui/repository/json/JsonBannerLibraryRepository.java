@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamerui.config.StreamerUiProperties;
 import com.streamerui.model.Badge;
 import com.streamerui.repository.BannerLibraryRepository;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
 import java.nio.file.Path;
@@ -14,10 +15,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * BannerLibraryRepository backed by data/banners.json. Mirrors
- * JsonBadgeLibraryRepository exactly - same {id,label,imageUrl} shape, just a
- * separate catalog/file so badges and banners don't share a dropdown.
+ * JsonBadgeLibraryRepository exactly. Local/single-tenant dev mode -
+ * streamerId is accepted but ignored. Active by default; steps aside when
+ * the "mysql" profile is on.
  */
 @Repository
+@Profile("!mysql")
 public class JsonBannerLibraryRepository implements BannerLibraryRepository {
 
     private final JsonFileStore store;
@@ -53,7 +56,7 @@ public class JsonBannerLibraryRepository implements BannerLibraryRepository {
     }
 
     @Override
-    public synchronized List<Badge> findAll() {
+    public synchronized List<Badge> findAll(Long streamerId) {
         List<Badge> all = new ArrayList<>();
         for (String id : order) {
             Badge b = cache.get(id);
@@ -65,12 +68,12 @@ public class JsonBannerLibraryRepository implements BannerLibraryRepository {
     }
 
     @Override
-    public synchronized Optional<Badge> findById(String id) {
+    public synchronized Optional<Badge> findById(Long streamerId, String id) {
         return Optional.ofNullable(cache.get(id));
     }
 
     @Override
-    public synchronized Badge save(Badge banner) {
+    public synchronized Badge save(Long streamerId, Badge banner) {
         if (!cache.containsKey(banner.getId())) {
             order.add(banner.getId());
         }
@@ -80,7 +83,7 @@ public class JsonBannerLibraryRepository implements BannerLibraryRepository {
     }
 
     @Override
-    public synchronized void deleteById(String id) {
+    public synchronized void deleteById(Long streamerId, String id) {
         cache.remove(id);
         order.remove(id);
         persist();

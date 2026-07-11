@@ -11,6 +11,17 @@ public class Badge {
     private String label;
     private String imageUrl;
 
+    /**
+     * Populated only on GET /api/badges and /api/banners responses (see
+     * BadgeLibraryController/BannerLibraryController), which merge in
+     * badges/banners owned by accepted partner streamers. Null/ignored on
+     * create/update requests - who owns a badge is set server-side from the
+     * authenticated streamer, never from the request body.
+     */
+    private Long ownerStreamerId;
+    private boolean mine = true;
+    private String ownerDisplayName;
+
     public Badge() {
     }
 
@@ -42,5 +53,29 @@ public class Badge {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Long getOwnerStreamerId() {
+        return ownerStreamerId;
+    }
+
+    public void setOwnerStreamerId(Long ownerStreamerId) {
+        this.ownerStreamerId = ownerStreamerId;
+    }
+
+    public boolean isMine() {
+        return mine;
+    }
+
+    public void setMine(boolean mine) {
+        this.mine = mine;
+    }
+
+    public String getOwnerDisplayName() {
+        return ownerDisplayName;
+    }
+
+    public void setOwnerDisplayName(String ownerDisplayName) {
+        this.ownerDisplayName = ownerDisplayName;
     }
 }
